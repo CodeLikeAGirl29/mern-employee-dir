@@ -5,7 +5,12 @@ import records from "./routes/record.js";
 const PORT = process.env.PORT || 5050;
 const app = express();
 
-app.use(cors());
+// middleware
+const corsOptions = {
+  origin: "https://mern-employee-dir.vercel.app/" // frontend URI (ReactJS)
+}
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/record", records);
 
