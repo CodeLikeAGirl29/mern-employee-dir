@@ -1,26 +1,19 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import mongoose from 'mongoose';
 
-const uri = 'mongodb+srv://fullstack:mongodbPass@data.ditziev.mongodb.net/?retryWrites=true&w=majority&appName=Data'
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+const uri = 'mongodb+srv://fullstack:mongodbPass@data.ditziev.mongodb.net/employees?retryWrites=true&w=majority';
 
-try {
-  // Connect the client to the server
-  await client.connect();
-  // Send a ping to confirm a successful connection
-  await client.db("admin").command({ ping: 1 });
-  console.log(
-    "Pinged your deployment. You successfully connected to MongoDB!"
-  );
-} catch (err) {
-  console.error(err);
-}
+const connectDB = async () => {
+  try {
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000, // Optional, can set a custom timeout
+    });
+    console.log("Successfully connected to MongoDB!");
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err);
+    process.exit(1); // Exit the process with an error if the connection fails
+  }
+};
 
-let db = client.db("employees");
-
-export default db;
+export default connectDB;
