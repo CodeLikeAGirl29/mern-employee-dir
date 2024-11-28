@@ -1,20 +1,48 @@
 import express from "express";
 import cors from "cors";
-import records from "./routes/record.js";
+import records from "./routes/records.js"; // Import the updated records route
+import db from "./db/connection.js"; // Import the PostgreSQL connection
+import dotenv from "dotenv";
 
-const PORT = process.env.PORT || 5050;
+dotenv.config(); // Load environment variables from .env file
+
+const PORT = process.env.PORT || 5050; // Use port from .env or default to 5050
 const app = express();
 
-// middleware
+// Middleware
 const corsOptions = {
-  origin: "https://mern-employee-dir.vercel.app/" // frontend URI (ReactJS)
-}
+  origin: process.env.CORS_ORIGIN || "http://localhost:3000", // Frontend URI
+};
+app.use(cors(corsOptions)); // Enable CORS with specific origin
+app.use(express.json()); // Parse JSON request bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use("/record", records);
+// Test database connection
+db.connect()
+  .then(() => console.log("Connected to PostgreSQL"))
+  .catch((err) => {
+    console.error("Database connection error:", err);
+    process.exit(1); // Exit if the database connection fails
+  });
 
-// start the Express server
+// Routes
+app.use("/record", records); // Route for handling records
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
+});
+
+// Graceful shutdown for database connection
+process.on("SIGINT", () => {
+  db.end(() => {
+    console.log("Database connection closed");
+    process.exit(0);
+  });
+});
+
+// Start the Express server
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });

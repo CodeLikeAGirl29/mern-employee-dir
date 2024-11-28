@@ -1,19 +1,20 @@
-import mongoose from 'mongoose';
+import { Pool } from "pg";
 
-const uri = 'mongodb+srv://fullstack:mongodbPass@data.ditziev.mongodb.net/employees?retryWrites=true&w=majority';
+const pool = new Pool({
+  user: "your_username",
+  host: "localhost",
+  database: "your_database",
+  password: "your_password",
+  port: 5432, // Default PostgreSQL port
+});
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // Optional, can set a custom timeout
-    });
-    console.log("Successfully connected to MongoDB!");
-  } catch (err) {
-    console.error("Error connecting to MongoDB:", err);
-    process.exit(1); // Exit the process with an error if the connection fails
-  }
-};
+pool.on("connect", () => {
+  console.log("Connected to PostgreSQL!");
+});
 
-export default connectDB;
+pool.on("error", (err) => {
+  console.error("PostgreSQL connection error:", err);
+  process.exit(1);
+});
+
+export default pool;
