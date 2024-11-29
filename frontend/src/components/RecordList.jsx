@@ -40,11 +40,11 @@ export default function RecordList() {
 
   // This method fetches the records from the database.
   useEffect(() => {
+    const API_URL = process.env.REACT_APP_API_URL;
     async function getRecords() {
-      const response = await fetch(`https://mern-employees-backend.vercel.app/record/`);
+      const response = await fetch(`${API_URL}/record`);
       if (!response.ok) {
-        const message = `An error occurred: ${response.statusText}`;
-        console.error(message);
+        console.error(`An error occurred: ${response.statusText}`);
         return;
       }
       const records = await response.json();
