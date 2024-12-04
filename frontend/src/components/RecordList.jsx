@@ -3,29 +3,22 @@ import { Link } from "react-router-dom";
 
 const Record = (props) => (
   <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-    <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-      {props.record.name}
-    </td>
-    <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-      {props.record.position}
-    </td>
-    <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-      {props.record.level}
-    </td>
-    <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+    <td className="p-4 align-middle">{props.record.name}</td>
+    <td className="p-4 align-middle">{props.record.position}</td>
+    <td className="p-4 align-middle">{props.record.level}</td>
+    <td className="p-4 align-middle">
       <div className="flex gap-2">
         <Link
           className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3"
-          to={`/edit/${props.record._id}`}
+          to={`/edit/${props.record.id}`}
         >
           Edit
         </Link>
         <button
           className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 hover:text-accent-foreground h-9 rounded-md px-3"
-          color="red"
           type="button"
           onClick={() => {
-            props.deleteRecord(props.record._id);
+            props.deleteRecord(props.record.id);
           }}
         >
           Delete
@@ -37,46 +30,57 @@ const Record = (props) => (
 
 export default function RecordList() {
   const [records, setRecords] = useState([]);
+  const [error, setError] = useState(null);
 
-  // This method fetches the records from the database.
+  // Fetch records from the database
   useEffect(() => {
-    const API_URL = process.env.REACT_APP_API_URL;
     async function getRecords() {
-      const response = await fetch(`${API_URL}/record`);
-      if (!response.ok) {
-        console.error(`An error occurred: ${response.statusText}`);
-        return;
+      try {
+        const response = await fetch(`https://mern-employee-dir.vercel.app/employees`);
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setRecords(data);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
       }
-      const records = await response.json();
-      setRecords(records);
     }
+
     getRecords();
-    return;
-  }, [records.length]);
+  }, []);
 
-  // This method will delete a record
+  // Delete a record by ID
   async function deleteRecord(id) {
-    await fetch(`https://mern-employees-backend.vercel.app/record/${id}`, {
-      method: "DELETE",
-    });
-    const newRecords = records.filter((el) => el._id !== id);
-    setRecords(newRecords);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/employees/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+      setRecords(records.filter((record) => record.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  // This method will map out the records on the table
+  // Map over records and generate rows
   function recordList() {
-    return records.map((record) => {
-      return (
-        <Record
-          record={record}
-          deleteRecord={() => deleteRecord(record._id)}
-          key={record._id}
-        />
-      );
-    });
+    return records.map((record) => (
+      <Record
+        record={record}
+        deleteRecord={deleteRecord}
+        key={record.id}
+      />
+    ));
   }
 
-  // This following section will display the table with the records of individuals.
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
+
   return (
     <>
       <h3 className="text-lg font-semibold p-4">Employee Records</h3>
@@ -84,24 +88,14 @@ export default function RecordList() {
         <div className="relative w-full overflow-auto">
           <table className="w-full caption-bottom text-sm">
             <thead className="[&_tr]:border-b">
-              <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
-                  Name
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
-                  Position
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
-                  Level
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
-                  Action
-                </th>
+              <tr className="border-b">
+                <th className="h-12 px-4 text-left align-middle font-medium">Name</th>
+                <th className="h-12 px-4 text-left align-middle font-medium">Position</th>
+                <th className="h-12 px-4 text-left align-middle font-medium">Level</th>
+                <th className="h-12 px-4 text-left align-middle font-medium">Action</th>
               </tr>
             </thead>
-            <tbody className="[&_tr:last-child]:border-0">
-              {recordList()}
-            </tbody>
+            <tbody>{recordList()}</tbody>
           </table>
         </div>
       </div>

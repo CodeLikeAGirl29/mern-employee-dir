@@ -7,6 +7,7 @@ import {
 import App from "./App";
 import Record from "./components/Record";
 import RecordList from "./components/RecordList";
+import EmployeeList from "./components/EmployeeList"; // Import the EmployeeList component
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -15,27 +16,19 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "/",
+        index: true, // Default child route for "/"
+        element: <EmployeeList />, // Use EmployeeList as the default component
+      },
+      {
+        path: "records",
         element: <RecordList />,
       },
-    ],
-  },
-  {
-    path: "/edit/:id",
-    element: <App />,
-    children: [
       {
-        path: "/edit/:id",
+        path: "edit/:id",
         element: <Record />,
       },
-    ],
-  },
-  {
-    path: "/create",
-    element: <App />,
-    children: [
       {
-        path: "/create",
+        path: "create",
         element: <Record />,
       },
     ],

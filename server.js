@@ -6,6 +6,13 @@ const employeesRoute = require("./routes/employees");
 const app = express();
 const PORT = process.env.PORT || 5050;
 
+const cors = require("cors");
+
+app.use(cors({
+  origin: "https://mern-employee-dir.vercel.app", // Your frontend's deployed URL
+}));
+
+
 // Middleware
 app.use(cors()); // Enable cross-origin requests
 app.use(express.json()); // Parse JSON bodies
