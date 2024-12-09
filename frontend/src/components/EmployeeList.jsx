@@ -1,49 +1,56 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
-const EmployeeList = () => {
+const EmployeeDirectory = () => {
   const [employees, setEmployees] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [newEmployee, setNewEmployee] = useState({
+    name: "",
+    position: "",
+    email: "",
+  });
+
+  // Fetch all employees
+  const fetchEmployees = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/employees"); // Update with your backend URL
+      setEmployees(res.data);
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+    }
+  };
+
+  // Delete an employee
+  const deleteEmployee = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/employees/${id}`);
+      setEmployees(employees.filter((employee) => employee._id !== id)); // Remove from state
+    } catch (err) {
+      console.error("Error deleting employee:", err);
+    }
+  };
 
   useEffect(() => {
-    fetch("http://localhost:5050/employees") // Replace with production URL if deployed
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch employees");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setEmployees(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+    fetchEmployees();
   }, []);
 
-  if (loading) {
-    return <div className="text-gray-500">Loading employees...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
-  }
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Employee List</h1>
-      <ul className="list-disc list-inside space-y-2">
-        {employees.map((employee) => (
-          <li key={employee.id} className="text-lg">
-            <span className="font-semibold">{employee.name}</span> -{" "}
-            {employee.position} ({employee.level})
-          </li>
-        ))}
-      </ul>
-    </div>
+      <div className="p-6">
+        {employees.length > 0 ? (
+          <ul className="list-disc list-inside space-y-2">
+            {employees.map((employee) => (
+              <li key={employee._id}>
+                <p>
+                  <strong>{employee.name}</strong> - {employee.position} ({employee.email})
+                </p>
+                <button onClick={() => deleteEmployee(employee._id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No employees found</p>
+        )}
+      </div>
   );
 };
 
-export default EmployeeList;
+export default EmployeeDirectory;

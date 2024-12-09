@@ -1,31 +1,28 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
-const employeesRoute = require("./routes/employees");
+
+const employeeRoutes = require("./routes/employeeRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 5050;
-
-const cors = require("cors");
-
-app.use(cors({
-  origin: "https://mern-employee-dir.vercel.app", // Your frontend's deployed URL
-}));
-
 
 // Middleware
-app.use(cors()); // Enable cross-origin requests
-app.use(express.json()); // Parse JSON bodies
+app.use(cors());
+app.use(express.json()); // Parse JSON data
+
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB Connection Failed:", err));
 
 // Routes
-app.use("/employees", employeesRoute);
+app.use("/api/employees", employeeRoutes);
 
-// Root route
-app.get("/", (req, res) => {
-  res.send("Welcome to the Employees Directory API");
-});
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// Start the Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
