@@ -12,7 +12,7 @@ const EmployeeDirectory = () => {
   // Fetch all employees
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/employees"); // Update with your backend URL
+      const res = await axios.get("https://mern-employee-dir.onrender.com/employees"); // Update with your backend URL
       setEmployees(res.data);
     } catch (err) {
       console.error("Error fetching employees:", err);
@@ -22,7 +22,7 @@ const EmployeeDirectory = () => {
   // Delete an employee
   const deleteEmployee = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/employees/${id}`);
+      await axios.delete(`https://mern-employee-dir.onrender.com/api/employees/${id}`);
       setEmployees(employees.filter((employee) => employee._id !== id)); // Remove from state
     } catch (err) {
       console.error("Error deleting employee:", err);
