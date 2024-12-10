@@ -19,7 +19,7 @@ export default function Create() {
     e.preventDefault()
 
     const newPerson = { ...form }
-    const response = await fetch(`https://mern-employee-dir.onrender.com/create/add`, {
+    const response = await fetch(`https://mern-employee-dir.onrender.com/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
